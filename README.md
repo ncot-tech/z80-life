@@ -14,6 +14,6 @@ Execution starts at 0x8000
 
 ## For more info
 
-* [YouTube Video](https://youtu.be/kbHGosB1yDA)
-* [Website Link](https://ncot.uk/z80-homebrew-computer/zombies-a-game-written-in-z80/)
+* [YouTube Video](https://youtu.be/DelPw_fY1J0)
+* [Website Link](https://ncot.uk/z80-homebrew-computer/conways-life-in-z80-assembly/)
 * [Twitter](https://twitter.com/NCoT_Tech)
