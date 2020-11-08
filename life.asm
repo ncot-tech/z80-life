@@ -1,20 +1,20 @@
     OUTPUT life.z80
     ORG $8000
 
+; Defines
 ScreenWidth EQU 80
 ScreenHeight EQU 25
 ScreenSize EQU ScreenWidth*ScreenHeight
 
 DeadChar EQU $20
 AliveChar EQU $40
-
-    call swapScreen
     call printBoard
     call swapScreen
 main:
-    call simulate
-    call printBoard
+    call calcCells
+    ret
     call swapScreen
+    call printBoard
     ; loop
     jp main
     ret
@@ -22,7 +22,7 @@ main:
 printBoard:
     call cls
     ld c, ScreenHeight
-    ld de,(frontScreen) ; it's a ** pointer
+    ld de,(currentGrid) ; it's a ** pointer
 
 nextC:
     call printNl
@@ -50,17 +50,17 @@ printDone:
     ret
 
 swapScreen:
-    ld hl,(frontScreen)
-    ld de,(backScreen)
-    ld (backScreen),hl
-    ld (frontScreen),de
+    ld hl,(currentGrid)
+    ld de,(otherGrid)
+    ld (otherGrid),hl
+    ld (currentGrid),de
 
     ret
 
-frontScreen:            ; Pointer to memory...
-    DW screenBuf1
-backScreen:
+currentGrid:            ; Pointer to memory...
     DW screenBuf2
+otherGrid:
+    DW screenBuf1
 
 screenBuf1:
     BLOCK ScreenSize,0
@@ -94,7 +94,7 @@ screenBuf2:
 
 
 
-    include board.asm
+    include board2.asm
     include utils.asm
     include ansi.asm
 
