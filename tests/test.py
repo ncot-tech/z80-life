@@ -113,7 +113,9 @@ def calcCells():
     setNewCell(pos, calcA())
     pos = pos+1
     # Top row
-    while (pos < width-1):
+#    while (pos < width-1):
+    while (pos != width-1):
+#        print ("Pos is ", pos)
         setNewCell(pos, calcTopRowCell(pos))
         pos = pos+1
 #    print ("Next is B at ", pos)
@@ -122,11 +124,11 @@ def calcCells():
     pos = pos+1
 #    print ("Top row done ", pos)
     # Middle cells
-    while(pos < width * (height-1)-1):
+    while(pos != width * (height-1)): #-1
         end = pos + width - 1
         setNewCell(pos,calcLCell(pos))
         pos = pos + 1
-        while (pos < end):#-1
+        while (pos != end):#-1
             setNewCell(pos,calcMiddleCell(pos))
             pos = pos + 1
         setNewCell(pos,calcRCell(pos))
@@ -137,10 +139,10 @@ def calcCells():
     setNewCell(pos, calcC())
     pos = pos + 1
     # Bottom row
-    end = pos + width-2
+    end = wxh-1 #pos + width-2
 #    print ("Bottom row starts at ", pos)
 #    print ("Bottom row ends at ", end)
-    while (pos < end):
+    while (pos != end):
         setNewCell(pos, calcBottomRowCell(pos))
         pos = pos + 1
     # D

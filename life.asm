@@ -9,10 +9,9 @@ ScreenSize EQU ScreenWidth*ScreenHeight
 DeadChar EQU $20
 AliveChar EQU $40
     call printBoard
-    call swapScreen
+;    call swapScreen
 main:
     call calcCells
-    ret
     call swapScreen
     call printBoard
     ; loop

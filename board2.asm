@@ -1,5 +1,5 @@
 ; Defines to avoid having to do any actual maths in the simulation
-middleRowLength EQU ScreenWidth*(ScreenHeight-1)-1
+middleRowLength EQU ScreenWidth*(ScreenHeight-1)    ;-1
 
 CellA EQU 0
 CellB EQU ScreenWidth-1
@@ -365,6 +365,7 @@ calcMiddleCell:
     ret
 ; pass in cell to check as de
 calcBottomRowCell:
+    push de
     or a ; a=0
 
     ld hl,de
@@ -422,6 +423,7 @@ calcBottomRowCell:
     inc hl
     inc hl
     add a,(hl)   ; Add to A
+    pop de
 
     ret
 calcLCell:
@@ -602,6 +604,7 @@ setCellAlive:
 
 ; Main calculations for whole grid
 calcCells:
+;    call printNl
     ; use de as the counter
     ld de,0
 
@@ -611,21 +614,29 @@ calcCells:
     call setNewCell
     inc de
 
+;    ld a,'A'
+;    call printChr
+
+    
 doTopRow:
+    ; now work out if we need to loop again
+    ld hl,ScreenWidth-1 ; while de < width-1
+    or a
+    sbc hl,de
+    add hl,de
+    jp z,doneTopRow
+
     ; calculate cell's neighbours
     call calcTopRowCell
     ld b,a
     ; and set next state
     call setNewCell
-
-    ; now work out if we need to loop again
-    ld hl,ScreenWidth-1
-    or a
-    sbc hl,de
-    add hl,de
+;    ld a,"T"
+;    call printChr
 
     inc de
-    jp nz,doTopRow  ; while de < width-1
+    jp doTopRow
+doneTopRow: 
 
     ; do "B"
     call calcB
@@ -633,8 +644,19 @@ doTopRow:
     call setNewCell
     inc de
 
+;    ld a,"B"
+;    call printChr
+;    call printNl
+
 doMiddleRows:
-    ; work out when this row ends
+    ; comparison to see if we're at the end of the whole middle section
+    ; de contains current cell index
+    ; hl contains value to stop at
+    ld hl,middleRowLength   ; this is a constant
+    or a
+    sbc hl,de
+    add hl,de
+    jp z,doneMiddleRows
 
     ; end = pos + width -1
     ld hl,ScreenWidth       ; get screen width
@@ -644,18 +666,17 @@ doMiddleRows:
     ; de still contains current cell index
     
     ; calculate left cell
-;    call calcLCell
+    call calcLCell
     ld b,a
-;    call setNewCell
+    call setNewCell
     inc de
+
+;    ld a,"L"
+;    call printChr
 
     ; loop and calculate middle cells of row
 doMiddleCells:
     ; calculate middle cell
-;    call calcMiddleCell
-    ld b,a
-;    call setNewCell
-    
 
     ; comparison to see if we're at the end of the row -1
     ; de contains current cell index
@@ -664,61 +685,66 @@ doMiddleCells:
     or a        ; clear flags
     sbc hl,de   ;
     add hl,de   ; do 16 bit comparison between hl and de
+    jp z,doneMiddleCells
+
+    call calcMiddleCell
+    ld b,a
+    call setNewCell
+    
+;    ld a,"M"
+;    call printChr
 
     inc de
-    jp nz,doMiddleCells ; repeat if not finished
+    jp doMiddleCells ; repeat if not finished
+doneMiddleCells:
 
     ; calculate right cell
-;    call calcRCell
+    call calcRCell
     ld b,a
-;    call setNewCell
+    call setNewCell
     
-    ; comparison to see if we're at the end of the whole middle section
-    ; de contains current cell index
-    ; hl contains value to stop at
-    ld hl,middleRowLength   ; this is a constant
-    or a
-    sbc hl,de
-    add hl,de
-
+;    ld a,'R'
+;    call printChr
+;    call printNl
     inc de
-    jp nz,doMiddleRows ; if not looped enough, go back
-
-; does not get here
+    jp doMiddleRows ; if not looped enough, go back
+doneMiddleRows:
 
     call calcC
     ld b,a
     call setNewCell
     inc de
 
-    ; end = pos + width -2
-    ld hl,ScreenWidth       ; get screen width
-    add hl,de               ; add current cell index
-    dec hl                  ; subtract 1
-    dec hl                  ; subtract 2
-    ld (CellCtr),hl   ; store result
-    ; de still contains current cell index
+;    ld a,'C'
+;    call printChr
 
 doBottomRow:
+    ; comparison to see if we're at the end of the bottom row
+    ; de contains current cell index
+    ; hl contains loop counter
+    ld hl,(ScreenWidth*ScreenHeight)-1
+    or a
+    sbc hl,de
+    add hl,de
+    jp z,doneBottomRow
+
     call calcBottomRowCell
     ld b,a
     call setNewCell
     
-
-    ; comparison to see if we're at the end of the bottom row
-    ; de contains current cell index
-    ; hl contains loop counter
-    ld hl,(CellCtr)
-    or a
-    sbc hl,de
-    add hl,de
-
+;    ld a,'B'
+;    call printChr
+    
     inc de
-    jp nz,doBottomRow ; if not looped enough, go back
+    jp doBottomRow ; if not looped enough, go back
+doneBottomRow:
 
     call calcD
     ld b,a
     call setNewCell
+
+;    ld a,'D'
+;    call printChr
 
     ret
 
