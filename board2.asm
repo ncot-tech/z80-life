@@ -334,7 +334,7 @@ calcMiddleCell:
     inc hl      ; +1
     ld bc,(currentGrid)
     add hl,bc   
-    add hl,bc   ; Add to A
+    add a,(hl)   ; Add to A
 
     ld hl,de
     ; Get contents of Cell x+width-1
@@ -467,7 +467,7 @@ calcLCell:
     inc hl      ; +1
     ld bc,(currentGrid)
     add hl,bc   
-    add hl,bc   ; Add to A
+    add a,(hl)   ; Add to A
 
     ld hl,de
     ; Get contents of Cell x+(width*2)-1
@@ -561,45 +561,53 @@ calcRCell:
     inc hl      ; +1
     ld bc,(currentGrid)
     add hl,bc   
-    add hl,bc   ; Add to A
+    add a,(hl)   ; Add to A
     
     ret
+
+; Puts neighbour count into grid for debugging
+; set de to be cell to check
+; set b to be neighbour count of that cell
+setNewCellNeighbourCount:
+    ld hl,(otherGrid)
+    add hl,de
+    ld (hl),b
+
+    ret
+
 ; Set cell to alive or dead
 ; set de to be cell to check
 ; set b to be neighbour count of that cell
 setNewCell:
-    push de
-    ld hl,de
-    ld de,(currentGrid)
+    ld hl,(currentGrid)
     add hl,de
     ld a,(hl)   ; A contains state of current cell
     cp a,1      ; if a == 1
     jp nz,cellDead:  ;   if a == 0, jump over this code
-    ld a,b
+    ; cell is alive
+    ld a,b  
     cp a,3
-    jp z,setCellAlive  ; is the neighbour count 3?
+    jp z,setCellAlive  ; is the neighbour count 3? => Lives
     cp a,2
-    jp z,setCellDead  ; is the neighbour count 2?
-    jp nz,setCellDead
+    jp z,setCellAlive  ; is the neighbour count 2? => Lives
+    jp nz,setCellDead  ; else => dies
 
 cellDead:       ; cell is dead
     ld a,b
     cp a,3
-    jp z,setCellAlive
+    jp z,setCellAlive ; is neighbour count 3? => Lives
     ; else fall through
 setCellDead:
-    ld hl,de
-    ld de,(otherGrid)
+    ld hl,(otherGrid)
     add hl,de
     ld (hl),0
-    pop de
+
     ret
 setCellAlive:
-    ld hl,de
-    ld de,(otherGrid)
+    ld hl,(otherGrid)
     add hl,de
     ld (hl),1
-    pop de
+
     ret
 
 ; Main calculations for whole grid

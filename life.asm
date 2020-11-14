@@ -9,52 +9,92 @@ ScreenSize EQU ScreenWidth*ScreenHeight
 DeadChar EQU $20
 AliveChar EQU $40
     call printBoard
-;    call swapScreen
 main:
     call calcCells
     call swapScreen
     call printBoard
+    ;call swapScreen
+    ;call printBoardNeighbourCount
     ; loop
     jp main
     ret
 
-printBoard:
+printBoardNeighbourCount:
     call cls
-    ld c, ScreenHeight
-    ld de,(currentGrid) ; it's a ** pointer
-
-nextC:
-    call printNl
-    ld b,ScreenWidth
-nextB:
-    push bc
-    push de
-    ld a,(de)
-    ;cp 1    ; alive?
-    dec a
-    jp nz, printDead
-    ld a,AliveChar
+    ld de,0
+    ld b,0
+printLoopN:
+    ld hl,(currentGrid)
+    add hl,de
+    ld a,(hl)
+    add a,48
     call printChr
-    jp printDone
-printDead:
-    ld a,DeadChar
-    call printChr
-printDone:
-    pop de
+    
     inc de
-    pop bc
-    djnz nextB
-    dec c
-    jp nz,nextC
+    inc b
+
+    ld hl,ScreenSize   ; this is a constant
+    or a
+    sbc hl,de
+    add hl,de
+    jp z,printLoopDoneN
+        
+    ld a,ScreenWidth
+    cp b
+    jp nz,printLoopN
+    call printNl
+    ld b,0
+    jp printLoopN
+printLoopDoneN:
     ret
 
+printBoard:
+    call cls
+    ld de,0
+    ld b,0
+printLoop:
+    ld hl,(currentGrid)
+    add hl,de
+    ld a,(hl)
+    cp 1
+
+    jp nz, printDeadCell
+    ld a,AliveChar
+    call printChr
+    jp printCharDone
+printDeadCell:
+    ld a,DeadChar
+    call printChr
+printCharDone:
+    inc de
+    inc b
+
+    ld hl,ScreenSize   ; this is a constant
+    or a
+    sbc hl,de
+    add hl,de
+    jp z,printLoopDone
+        
+    ld a,ScreenWidth
+    cp b
+    jp nz,printLoop
+    call printNl
+    ld b,0
+    jp printLoop
+printLoopDone:
+    ret
+
+; This works, stop debugging it
 swapScreen:
     ld hl,(currentGrid)
     ld de,(otherGrid)
     ld (otherGrid),hl
     ld (currentGrid),de
-
     ret
+
+    include board2.asm
+    include utils.asm
+    include ansi.asm
 
 currentGrid:            ; Pointer to memory...
     DW screenBuf2
@@ -67,9 +107,9 @@ screenBuf1:
 screenBuf2:
     db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    db 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    db 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    db 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -93,8 +133,6 @@ screenBuf2:
 
 
 
-    include board2.asm
-    include utils.asm
-    include ansi.asm
+
 
 end:
