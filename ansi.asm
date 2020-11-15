@@ -71,7 +71,8 @@ clearchar:
 clearChar:
     dz $1B,"[1;5;37;42m", " "
 clsansi:
-    db $1B,"[35;40m"
-    dz $1B,"[2J",$1B,"[0;0f"
+    db $1B,"[36;40m"    ; Cyan on black text
+    ; dz $1B,"[2J",$1B,"[0;0f"    ; Clear and home
+    dz $1B,"[0;0f"
 cursoransi:
     dz $1B,"[00;00f"

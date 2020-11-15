@@ -1,9 +1,9 @@
 ; Defines to avoid having to do any actual maths in the simulation
-middleRowLength EQU ScreenWidth*(ScreenHeight-1)    ;-1
+middleRowLength EQU ScreenWidth*(ScreenHeight-1)
 
 CellA EQU 0
 CellB EQU ScreenWidth-1
-CellC EQU ScreenWidth*(ScreenHeight-1)
+CellC EQU ScreenSize-ScreenWidth
 CellD EQU ScreenSize-1
 
 ; Total returned in a
@@ -25,10 +25,7 @@ calcA:
     add a,(hl)   ; Add to A
 
     ; Get contents of Cell C+1
-    ld hl,(currentGrid)
-    ld bc,CellC+1
-    add hl,bc
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
     ; Get contents of Cell B
     ld hl,(currentGrid)
@@ -55,10 +52,7 @@ calcA:
     add a,(hl)   ; Add to A
 
     ; Get contents of Cell B+2
-    ld hl,(currentGrid)
-    ld bc,CellB+2
-    add hl,bc
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
     ret
 
@@ -161,10 +155,7 @@ calcC:
     add a,(hl)   ; Add to A
 
     ; Get contents of Cell A+1
-    ld hl,(currentGrid)
-    ld bc,CellA+1
-    add hl,bc
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
     ret
 
@@ -178,10 +169,7 @@ calcD:
     ld a,(hl)   ; Add to A
 
     ; Get contents of Cell C-1
-    ld hl,(currentGrid)
-    ld bc,CellC-1
-    add hl,bc
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
     ; Get contents of Cell C-ScreenWidth
     ld hl,(currentGrid)
@@ -208,10 +196,7 @@ calcD:
     add a,(hl)   ; Add to A
 
     ; Get contents of Cell B
-    ld hl,(currentGrid)
-    ld bc,CellB
-    add hl,bc
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
     ; Get contents of Cell A
     ld hl,(currentGrid)
@@ -234,22 +219,11 @@ calcTopRowCell:
     add hl,bc   
     ld a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell C+x
-    ld bc,CellC
-    add hl,bc   ; c+x
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; Get contents of Cell C+x   
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell C+x+1
-    ld bc,CellC
-    add hl,bc   ; c+x
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
     ld hl,de
     ; Get contents of x-1
@@ -258,11 +232,8 @@ calcTopRowCell:
     add hl,bc   
     add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of x+1
-    inc hl      ; -1
-    ld bc,(currentGrid)
-    add hl,bc   
+    inc hl : inc hl
     add a,(hl)   ; Add to A
 
     ld hl,de
@@ -302,70 +273,34 @@ calcMiddleCell:
     sbc hl,bc   ; x-width
     dec hl      ; -1
     ld bc,(currentGrid)
-    add hl,bc   
-    ld a,(hl)   ; Add to A
+    add hl,bc : ld a,(hl)  ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x-width
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x-width+1
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x-1
-    dec hl      ; -1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; Get contents of Cell x-1  
+    ld bc,ScreenWidth-2 ; x-1 is ScreenWidth-2 away
+    add hl,bc : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x+1
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; Get contents of Cell x+1 
+    inc hl : inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x+width-1
-    ld bc,ScreenWidth
-    add hl,bc   ; x+width
-    dec hl      ; -1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ld bc,ScreenWidth-2; x+width-1 is ScreenWidth-2 away
+    add hl,bc : add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x+width
-    ld bc,ScreenWidth
-    add hl,bc   ; x+width
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x+width+1
-    ld bc,ScreenWidth
-    add hl,bc   ; x+width
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
-
+    inc hl : add a,(hl)   ; Add to A
     ret
+
 ; pass in cell to check as de
 calcBottomRowCell:
-    push de
     or a ; a=0
 
     ld hl,de
@@ -377,22 +312,11 @@ calcBottomRowCell:
     add hl,bc   
     ld a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x-width
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x-width+1
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    inc hl : add a,(hl)   ; Add to A
 
     ld hl,de
     ; Get contents of Cell x-1
@@ -401,178 +325,97 @@ calcBottomRowCell:
     add hl,bc   
     add a,(hl)   ; Add to A
 
-    ld hl,de
     ; Get contents of Cell x+1
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    inc hl : inc hl : add a,(hl)   ; Add to A
 
     ; bottom cells that are actually at the top
     ; calculate cell offset
     ld hl,de
-    ld de,ScreenSize-ScreenWidth
-    sbc hl,de
+    ld bc,ScreenSize-ScreenWidth
+    sbc hl,bc ; this gives us the offset...
+    ; but it needs to be taken from the start of the grid...
+    ld bc,(currentGrid)
+    add hl,bc
     add a,(hl)   ; Add to A
 
     ; offset -1
-    dec hl
-    add a,(hl)   ; Add to A
+    dec hl : add a,(hl)   ; Add to A
 
     ; offset +1
-    inc hl
-    inc hl
-    add a,(hl)   ; Add to A
-    pop de
+    inc hl : inc hl : add a,(hl)   ; Add to A
 
     ret
 calcLCell:
     or a ; a=0
 
+    ; start with (2)
     ld hl,de
-    ; Get contents of Cell x-1
-    dec hl      ; -1
+    ld bc,ScreenWidth
+    sbc hl,bc
     ld bc,(currentGrid)
     add hl,bc   
     ld a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x-width
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then 3
+    inc hl : add a,(hl)   ; Add to A
+    
+    ; then 1
+    ld bc,ScreenWidth-2
+    add hl,bc : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x+width+1
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then 5
+    inc hl : inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x-width+1
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    dec hl      ; -1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then 4
+    ld bc,ScreenWidth-2
+    add hl,bc : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x+1
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then 7
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x+(width*2)-1
-    ld bc,ScreenWidth*2
-    add hl,bc   ; x+(width*2)
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then 8
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x+width
-    ld bc,ScreenWidth
-    add hl,bc   ; x+width
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
-
-    ld hl,de
-    ; Get contents of Cell x+width+1
-    ld bc,ScreenWidth
-    add hl,bc   ; x+width
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then 6
+    ld bc,ScreenWidth-2
+    add hl,bc : add a,(hl)   ; Add to A
 
     ret
 calcRCell:
     or a ; a=0
 
+    ; Start at x-((width*2)-1) (3)
     ld hl,de
-    ; Get contents of Cell x-width-1
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    dec hl      ; -1
+    ld bc,(ScreenWidth*2)-1
+    sbc hl,bc
     ld bc,(currentGrid)
     add hl,bc   
     ld a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x-width
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; move to x-width-1 which is width-2 away (1)
+    ld bc,ScreenWidth-2
+    add hl,bc : add a,(hl)   ; Add to A
 
-    ; x-width-width+1
-    ; hl already contains x-width
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width-width
-    inc hl      ; +1
-    add a,(hl)   ; Add to A
+    ; Then the next cell (2)
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x-1
-    dec hl      ; -1
-    ld bc,(currentGrid)
-    add hl,bc   
-    ld a,(hl)   ; Add to A
+    ; The next which is on the next row (5)
+    inc hl : add a,(hl)   ; Add to A
 
-    ld hl,de
-    ; Get contents of Cell x-width+1
-    ld bc,ScreenWidth
-    sbc hl,bc   ; x-width
-    dec hl      ; -1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; Then x-1 (4)
+    ld bc,ScreenWidth-2
+    add hl,bc : add a,(hl)
 
-    ld hl,de
-    ; Get contents of Cell x+width-1
-    ld bc,ScreenWidth
-    add hl,bc   ; x+width
-    dec hl      ; -1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then x+1 (8)
+    inc hl : inc hl : add a,(hl)
 
-    ld hl,de
-    ; Get contents of Cell x+width
-    ld bc,ScreenWidth
-    add hl,bc   ; x+width
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then (6)
+    ld bc,ScreenWidth-2
+    add hl,bc : add a,(hl)
 
-    ld hl,de
-    ; Get contents of Cell x+1
-    inc hl      ; +1
-    ld bc,(currentGrid)
-    add hl,bc   
-    add a,(hl)   ; Add to A
+    ; then (7)
+    inc hl : add a,(hl)
     
-    ret
-
-; Puts neighbour count into grid for debugging
-; set de to be cell to check
-; set b to be neighbour count of that cell
-setNewCellNeighbourCount:
-    ld hl,(otherGrid)
-    add hl,de
-    ld (hl),b
-
     ret
 
 ; Set cell to alive or dead
@@ -612,7 +455,6 @@ setCellAlive:
 
 ; Main calculations for whole grid
 calcCells:
-;    call printNl
     ; use de as the counter
     ld de,0
 
@@ -622,10 +464,6 @@ calcCells:
     call setNewCell
     inc de
 
-;    ld a,'A'
-;    call printChr
-
-    
 doTopRow:
     ; now work out if we need to loop again
     ld hl,ScreenWidth-1 ; while de < width-1
@@ -639,8 +477,6 @@ doTopRow:
     ld b,a
     ; and set next state
     call setNewCell
-;    ld a,"T"
-;    call printChr
 
     inc de
     jp doTopRow
@@ -651,10 +487,6 @@ doneTopRow:
     ld b,a
     call setNewCell
     inc de
-
-;    ld a,"B"
-;    call printChr
-;    call printNl
 
 doMiddleRows:
     ; comparison to see if we're at the end of the whole middle section
@@ -679,9 +511,6 @@ doMiddleRows:
     call setNewCell
     inc de
 
-;    ld a,"L"
-;    call printChr
-
     ; loop and calculate middle cells of row
 doMiddleCells:
     ; calculate middle cell
@@ -698,9 +527,6 @@ doMiddleCells:
     call calcMiddleCell
     ld b,a
     call setNewCell
-    
-;    ld a,"M"
-;    call printChr
 
     inc de
     jp doMiddleCells ; repeat if not finished
@@ -711,9 +537,6 @@ doneMiddleCells:
     ld b,a
     call setNewCell
     
-;    ld a,'R'
-;    call printChr
-;    call printNl
     inc de
     jp doMiddleRows ; if not looped enough, go back
 doneMiddleRows:
@@ -722,9 +545,6 @@ doneMiddleRows:
     ld b,a
     call setNewCell
     inc de
-
-;    ld a,'C'
-;    call printChr
 
 doBottomRow:
     ; comparison to see if we're at the end of the bottom row
@@ -739,10 +559,7 @@ doBottomRow:
     call calcBottomRowCell
     ld b,a
     call setNewCell
-    
-;    ld a,'B'
-;    call printChr
-    
+       
     inc de
     jp doBottomRow ; if not looped enough, go back
 doneBottomRow:
@@ -750,9 +567,6 @@ doneBottomRow:
     call calcD
     ld b,a
     call setNewCell
-
-;    ld a,'D'
-;    call printChr
 
     ret
 
