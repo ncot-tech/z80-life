@@ -48,7 +48,6 @@ def printGrid():
     print("")
 
 def calcA():
-    #
     return grids[currentGrid][d] + grids[currentGrid][c] + grids[currentGrid][c+1] +\
             grids[currentGrid][b] + grids[currentGrid][a+1] +\
             grids[currentGrid][b+width] + grids[currentGrid][b+1] + grids[currentGrid][b+2]
@@ -113,7 +112,6 @@ def calcCells():
     setNewCell(pos, calcA())
     pos = pos+1
     # Top row
-#    while (pos < width-1):
     while (pos != width-1):
 #        print ("Pos is ", pos)
         setNewCell(pos, calcTopRowCell(pos))

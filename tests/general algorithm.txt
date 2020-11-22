@@ -1,0 +1,60 @@
+# General algorithm for Conway's Life
+# This uses a pair of 1D lists to store the cells
+
+Create constants for width and height
+Create constants for each corner cell index
+
+Define grid 1 with starting pattern
+Define grid 2 as empty
+
+SwapGrid function
+    We're using the concept of double buffering
+    This function should just swap grid1 and 2 over
+
+PrintGrid function
+    This should print a "#" if the cell is alive
+    or a ' ' if it is dead
+
+Calculation functions for neighbours:
+    This is split into different sections
+
+    each corner needs its own special case to handle
+    wrapping of the grid
+
+    The top row needs to loop over to the bottom
+    The bottom row needs to loop over to the top
+    Same idea with both sides
+    The middle follows the general logic of Life
+
+    All functions simply accept a list index and return
+    the neighbour count of that cell
+
+Calculate grid function
+    Set index to 0
+    calculate top left corner
+
+    while (not at top right corner)
+        calculate a top row cell
+        increment index
+    calculate top right corner
+    increment index
+
+    While (not at bottom left corner)
+        calculate end of this row's index
+        calculate a left edge cell
+        increment index
+        while not at end of this row
+            calculate a middle cell
+            increment index
+        calculate right edge cell
+        increment index
+
+    Calculate bottom left corner
+    increment index
+
+    while (not at bottom right corner)
+        calculate bottom row cell
+        increment index
+
+    calculate bottom right corner
+    
